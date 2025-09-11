@@ -3,6 +3,7 @@
 from logging.config import fileConfig
 
 from alembic import context
+from alembic.script import ScriptDirectory
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
@@ -12,8 +13,7 @@ from app.models import customer
 from app.models import address
 from app.models import route
 from app.models import route_customer
-# from app.models import route_schedule
-# from app.models import notification
+from app.models import route_schedule
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -39,6 +39,27 @@ target_metadata = Base.metadata
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
+# Creation of the function for alembic to create the file name in
+# the sequence of 0001 ... 9999
+# DOC: https://alembic.sqlalchemy.org/en/latest/api/autogenerate.
+# html#customizing-revision-generation
+def process_revision_directives(cont, revision, directives):
+    # extract Migration
+    migration_script = directives[0]
+    # extract current head revision
+    head_revision = ScriptDirectory.from_config(
+        cont.config).get_current_head()
+
+    if head_revision is None:
+        # edge case with first migration
+        new_rev_id = 1
+    else:
+        # default branch with incrementation
+        last_rev_id = int(head_revision.lstrip('0'))
+        new_rev_id = last_rev_id + 1
+    # fill zeros up to 4 digits: 1 -> 0001
+
+    migration_script.rev_id = '{0:04}'.format(new_rev_id)
 
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
@@ -56,6 +77,7 @@ def run_migrations_offline() -> None:
     context.configure(
         url=url,
         target_metadata=target_metadata,
+        process_revision_directives=process_revision_directives,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
     )
@@ -79,7 +101,9 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            process_revision_directives=process_revision_directives
         )
 
         with context.begin_transaction():

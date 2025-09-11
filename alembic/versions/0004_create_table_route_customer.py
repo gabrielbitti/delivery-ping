@@ -1,8 +1,8 @@
 """create table route_customer
 
-Revision ID: b85a1152e04a
-Revises: afef1d17c623
-Create Date: 2025-09-10 22:01:54.007183
+Revision ID: 0004
+Revises: 0003
+Create Date: 2025-09-10 22:09:20.047933
 
 """
 
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = 'b85a1152e04a'
-down_revision: Union[str, Sequence[str], None] = 'afef1d17c623'
+revision: str = '0004'
+down_revision: Union[str, Sequence[str], None] = '0003'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 

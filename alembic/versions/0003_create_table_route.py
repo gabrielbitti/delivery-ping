@@ -1,8 +1,8 @@
 """create table route
 
-Revision ID: afef1d17c623
-Revises: 837af92bc942
-Create Date: 2025-09-10 22:00:25.269861
+Revision ID: 0003
+Revises: 0002
+Create Date: 2025-09-10 22:08:47.920926
 
 """
 
@@ -12,8 +12,8 @@ import sqlalchemy as sa
 from alembic import op
 
 # revision identifiers, used by Alembic.
-revision: str = 'afef1d17c623'
-down_revision: Union[str, Sequence[str], None] = '837af92bc942'
+revision: str = '0003'
+down_revision: Union[str, Sequence[str], None] = '0002'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
