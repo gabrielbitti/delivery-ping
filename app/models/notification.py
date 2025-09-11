@@ -24,7 +24,7 @@ class Notification(BaseModel):
 
     id = Column(Integer, primary_key=True, index=True)
     customer_id = Column(Integer, ForeignKey('customer.id'), nullable=False)
-    route_schedule_id = Column(Integer, ForeignKey('route_schedule.id'), nullable=False) # route_id or route_schedule
+    route_schedule_id = Column(Integer, ForeignKey('route_schedule.id'), nullable=False)
     type = Column(SQLEnum(NotificationType, name='notification_type'),
                   nullable=False, default=NotificationType.PRE_ROUTE)
     status = Column(SQLEnum(NotificationStatus, name='notification_status'),
