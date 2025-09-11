@@ -19,3 +19,4 @@ class Customer(BaseModel):
     is_active = Column(Boolean, default=True, nullable=False)
 
     # address = Address
+    # customer_routes = rotas que ele faz parte
