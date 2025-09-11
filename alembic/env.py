@@ -14,6 +14,7 @@ from app.models import address
 from app.models import route
 from app.models import route_customer
 from app.models import route_schedule
+from app.models import notification
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
