@@ -11,7 +11,7 @@ from app.database import Base
 from app.models import customer
 from app.models import address
 from app.models import route
-# from app.models import route_city
+from app.models import route_customer
 # from app.models import route_schedule
 # from app.models import notification
 
