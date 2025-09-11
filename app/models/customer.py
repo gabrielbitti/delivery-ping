@@ -18,5 +18,5 @@ class Customer(BaseModel):
     email = Column(String, nullable=True)
     is_active = Column(Boolean, default=True, nullable=False)
 
-    # address = Address
     # customer_routes = rotas que ele faz parte
+    # todo: nao deletar, apenas atualizar campo "deleted_at"
