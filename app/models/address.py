@@ -11,7 +11,7 @@ class Address(BaseModel):
     id = Column(Integer, primary_key=True, index=True)
     customer_id = Column(Integer, ForeignKey('customer.id'), nullable=False)
     complete_address = Column(String, nullable=True)
-    city = Column(String, nullable=False)
+    city = Column(String, nullable=False, index=True)
     state = Column(String, nullable=False)
     country = Column(String, nullable=False, default='Brasil')
     zip_code = Column(String, nullable=True)
