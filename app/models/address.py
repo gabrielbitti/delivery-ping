@@ -1,6 +1,6 @@
 """Address model implementation."""
 
-from sqlalchemy import String, Integer, Column, ForeignKey
+from sqlalchemy import String, Integer, Column, Boolean, ForeignKey
 
 from .abstract import BaseModel
 
@@ -15,6 +15,7 @@ class Address(BaseModel):
     state = Column(String, nullable=False)
     country = Column(String, nullable=False, default='Brasil')
     zip_code = Column(String, nullable=True)
+    is_primary = Column(Boolean, nullable=False, default=True)
     latitude = Column(String, nullable=True)
     longitude = Column(String, nullable=True)
 
