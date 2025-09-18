@@ -11,9 +11,8 @@ from app.settings import POSTGRES_URL
 from app.database import Base
 from app.models import customer
 from app.models import address
+# from app.models.route import Route, RoutePoint, RouteSchedule
 from app.models import route
-from app.models import route_customer
-from app.models import route_schedule
 from app.models import notification
 
 # this is the Alembic Config object, which provides
