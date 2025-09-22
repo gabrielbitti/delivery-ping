@@ -40,12 +40,12 @@ class Notification(BaseModel):
         nullable=False
     )
     type = Column(
-        Enum(NotificationType),
+        Enum(NotificationType, name='notification_type_enum'),
         default=NotificationType.REMINDER,
         nullable=False
     )
     status = Column(
-        Enum(NotificationStatus),
+        Enum(NotificationStatus, name='notification_status_enum'),
         default=NotificationStatus.PENDING,
         nullable=False,
         index=True
