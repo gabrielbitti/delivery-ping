@@ -92,7 +92,7 @@ class RouteSchedule(BaseModel):
         nullable=False
     )
     status = Column(
-        Enum(RouteStatus),
+        Enum(RouteStatus, name='route_status_enum'),
         default=RouteStatus.PENDING,
         nullable=False,
         index=True
