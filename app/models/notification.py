@@ -66,7 +66,7 @@ class Notification(BaseModel):
             'idx_notification_pending',
             'scheduled_date',
             'status',
-            postgresql_where="status IN ('pending', 'failed')"
+            postgresql_where="status IN ('PENDING', 'FAILED')"
         ),
 
         CheckConstraint(

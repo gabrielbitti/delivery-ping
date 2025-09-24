@@ -8,7 +8,6 @@ from sqlalchemy import (
     Float, Text, Enum
 )
 from sqlalchemy.orm import relationship, validates
-from sqlalchemy.sql import func
 
 from .abstract import BaseModel
 
@@ -43,6 +42,19 @@ class Route(BaseModel):
     __table_args__ = (
         Index('idx_route_active', 'is_active'),
     )
+
+
+class RouteDTO:
+    def __init__(self, db):
+        self.db = db
+
+    def get_by_id(self, pk: int) -> Route:
+        """Get a Route by id."""
+        return self.db.query(Route).where(Route.id == pk).first()
+
+    # def delete(self, pk: int) -> Route:
+    #     """Get a Route by id."""
+    #     return self.db.query(Route).where(Route.id == pk).first()
 
 
 class RoutePoint(BaseModel):
