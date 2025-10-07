@@ -58,8 +58,8 @@ class Notification(BaseModel):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
-    schedule = relationship("RouteSchedule", back_populates="notifications")
-    customer = relationship("Customer", back_populates="notifications")
+    # schedule = relationship("RouteSchedule", back_populates="notifications")
+    # customer = relationship("Customer", back_populates="notifications")
 
     __table_args__ = (
         Index(

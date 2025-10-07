@@ -30,8 +30,8 @@ class Address(BaseModel):
     is_primary = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    customer = relationship("Customer", back_populates="addresses")
-    route_points = relationship("RoutePoint", back_populates="address")
+    # customer = relationship("Customer", back_populates="addresses")
+    # route_points = relationship("RoutePoint", back_populates="address")
 
     __table_args__ = (
         Index('idx_address_city_customer', 'city', 'customer_id'),

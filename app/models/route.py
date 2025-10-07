@@ -27,21 +27,27 @@ class Route(BaseModel):
     name = Column(String(255), nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
 
-    points = relationship(
-        "RoutePoint",
-        back_populates="route",
-        cascade="all, delete-orphan",
-        order_by="RoutePoint.sequence_order"
-    )
-    schedules = relationship(
-        "RouteSchedule",
-        back_populates="route",
-        cascade="all, delete-orphan"
-    )
+    # points = relationship(
+    #     "RoutePoint",
+    #     back_populates="route",
+    #     cascade="all, delete-orphan",
+    #     order_by="RoutePoint.sequence_order"
+    # )
+    # schedules = relationship(
+    #     "RouteSchedule",
+    #     back_populates="route",
+    #     cascade="all, delete-orphan"
+    # )
 
     __table_args__ = (
         Index('idx_route_active', 'is_active'),
     )
+
+    @validates('is_active')
+    def validate_is_active(self, key, value):
+        if not isinstance(value, bool):  # ex: '5527998393682':
+            raise ValueError("campo")
+        return value
 
 
 class RouteDTO:
@@ -52,9 +58,9 @@ class RouteDTO:
         """Get a Route by id."""
         return self.db.query(Route).where(Route.id == pk).first()
 
-    # def delete(self, pk: int) -> Route:
-    #     """Get a Route by id."""
-    #     return self.db.query(Route).where(Route.id == pk).first()
+    def fake_delete(self, pk: int) -> Route:
+        """Get a Route by id."""
+        return self.db.query(Route).where(Route.id == pk).first()
 
 
 class RoutePoint(BaseModel):
@@ -76,8 +82,8 @@ class RoutePoint(BaseModel):
     distance_to_next = Column(Float)  # km até próximo ponto
     notes = Column(Text)
 
-    route = relationship("Route", back_populates="points")
-    address = relationship("Address", back_populates="route_points")
+    # route = relationship("Route", back_populates="points")
+    # address = relationship("Address", back_populates="route_points")
 
     __table_args__ = (
         UniqueConstraint('route_id', 'sequence_order',
@@ -112,12 +118,12 @@ class RouteSchedule(BaseModel):
     schedule_date = Column(DateTime(timezone=True), nullable=False, index=True)
     finish_date = Column(DateTime(timezone=True))
 
-    route = relationship("Route", back_populates="schedules")
-    notifications = relationship(
-        "Notification",
-        back_populates="schedule",
-        cascade="all, delete-orphan"
-    )
+    # route = relationship("Route", back_populates="schedules")
+    # notifications = relationship(
+    #     "Notification",
+    #     back_populates="schedule",
+    #     cascade="all, delete-orphan"
+    # )
 
     __table_args__ = (
         Index('idx_schedule_date_status', 'schedule_date', 'status'),
