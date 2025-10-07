@@ -25,7 +25,7 @@ def create_route(route: CreateRoute, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=List[RouteSchema])
-def get_routes(skip: int = 0, limit: int = 100,
+def get_routes(skip: int = 0, limit: int = 10,
                db: Session = Depends(get_db)):
     """Get all routes with pagination."""
     routes = db.query(Route).offset(skip).limit(limit).all()
@@ -44,7 +44,7 @@ def get_route(route_id: int, db: Session = Depends(get_db)):
     return route
 
 
-@router.put("/{route_id}", response_model=RouteSchema)
+@router.patch("/{route_id}", response_model=RouteSchema)
 def update_route(
         route_id: int,
         route_update: CreateRoute,
@@ -65,20 +65,3 @@ def update_route(
     db.refresh(route)
 
     return route
-
-
-@router.delete("/{route_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_route(route_id: int, db: Session = Depends(get_db)):
-    """Delete a route by ID."""
-    route = RouteDTO(db).get_by_id(route_id)
-    if route is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Route not found"
-        )
-
-    route = RouteDTO(db).delete(route_id)
-    # todo: nao deletar, apenas atualizar campo "deleted_at"
-
-    db.delete(route)
-    db.commit()
