@@ -19,17 +19,17 @@ class Customer(BaseModel):
     email = Column(String(255), unique=True, index=True)
     is_active = Column(Boolean, default=True, nullable=False)
 
-    addresses = relationship(
-        "Address",
-        back_populates="customer",
-        cascade="all, delete-orphan",
-        lazy="selectin"
-    )
-    notifications = relationship(
-        "Notification",
-        back_populates="customer",
-        cascade="all, delete-orphan"
-    )
+    # addresses = relationship(
+    #     "Address",
+    #     back_populates="customer",
+    #     cascade="all, delete-orphan",
+    #     lazy="selectin"
+    # )
+    # notifications = relationship(
+    #     "Notification",
+    #     back_populates="customer",
+    #     cascade="all, delete-orphan"
+    # )
 
     __table_args__ = (
         Index('idx_customer_active_name', 'is_active', 'complete_name'),
@@ -62,7 +62,3 @@ class CustomerDTO:
     def get_by_id(self, pk: int) -> Customer:
         """Get a Customer by id."""
         return self.db.query(Customer).where(Customer.id == pk).first()
-
-    # def delete(self, pk: int) -> Customer:
-    #     """Get a Customer by id."""
-    #     return self.db.query(Customer).where(Customer.id == pk).first()
