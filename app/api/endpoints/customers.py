@@ -65,20 +65,3 @@ def update_customer(
     db.refresh(customer)
 
     return customer
-
-
-@router.delete("/{customer_id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_customer(customer_id: int, db: Session = Depends(get_db)):
-    """Delete a customer by ID."""
-    customer = CustomerDTO(db).get_by_id(customer_id)
-    if customer is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Customer not found"
-        )
-
-    # todo: nao deletar, apenas atualizar campo "deleted_at"
-    # customer = CustomerDTO(db).delete(customer_id)
-
-    db.delete(customer)
-    db.commit()

@@ -15,4 +15,4 @@ app.include_router(router_router, prefix=prefix)
 # todo: configure CORS
 
 if __name__ == '__main__':
-    uvicorn.run('main:app', host='0.0.0.0', port=8007)
+    uvicorn.run('main:app', host='0.0.0.0', port=8007, reload=True)
