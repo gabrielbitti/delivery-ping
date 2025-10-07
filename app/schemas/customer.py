@@ -22,17 +22,9 @@ class CreateCustomer(BaseModel):
         from_attributes = True
 
 
-class Customer(BaseModel):
+class Customer(CreateCustomer):
     """Schema for customer response."""
 
     id: int
-    complete_name: Optional[str] = None
-    nickname: Optional[str] = None
-    cellphone: Optional[str] = None
-    has_whatsapp: Optional[bool] = None
-    cpf: Optional[str] = None
-    cnpj: Optional[str] = None
-    email: Optional[str] = None
-    is_active: bool
-    created_at: datetime
-    updated_at: datetime
+    created_at: Optional[datetime]
+    updated_at: Optional[datetime]
