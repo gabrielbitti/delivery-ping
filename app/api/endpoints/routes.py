@@ -24,6 +24,14 @@ def create_route(route: CreateRoute, db: Session = Depends(get_db)):
     return db_route
 
 
+@router.post("/routes/{id}/cities", response_model=RouteSchema,
+             status_code=status.HTTP_201_CREATED)
+def add_city_to_route(route: CreateRoute, db: Session = Depends(get_db)):
+    """Add a city to route."""
+    # todo: adds city to a route, but before, add a address, add a route point, setting this route_id
+    pass
+
+
 @router.get("/", response_model=List[RouteSchema])
 def get_routes(skip: int = 0, limit: int = 10,
                db: Session = Depends(get_db)):
