@@ -12,7 +12,7 @@ class CreateRoutePoint(BaseModel):
     route_id: int
     address_id: int
     sequence_order: int
-    estimated_time: str
+    estimated_time: int
     distance_to_next: float
     notes: Optional[str] = None
 
