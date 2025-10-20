@@ -5,7 +5,6 @@ from sqlalchemy import (
     ForeignKey, DateTime, Index, CheckConstraint,
     text
 )
-from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from .abstract import BaseModel
@@ -54,3 +53,12 @@ class Address(BaseModel):
             name='valid_longitude'
         ),
     )
+
+
+class AddressDTO:
+    def __init__(self, db):
+        self.db = db
+
+    def get_by_id(self, pk: int) -> Address:
+        """Get an Address by id."""
+        return self.db.query(Address).where(Address.id == pk).first()
