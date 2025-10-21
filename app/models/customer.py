@@ -4,6 +4,7 @@ from sqlalchemy import String, Integer, Column, Boolean, Index
 from sqlalchemy.orm import relationship, validates
 
 from .abstract import BaseModel
+from ..schemas.customer import CreateCustomer
 
 
 class Customer(BaseModel):
@@ -62,3 +63,12 @@ class CustomerDTO:
     def get_by_id(self, pk: int) -> Customer:
         """Get a Customer by id."""
         return self.db.query(Customer).where(Customer.id == pk).first()
+
+    def insert(self, customer: CreateCustomer) -> Customer:
+        """Insert a Customer."""
+        new_customer = Customer(**customer.model_dump())
+        self.db.add(new_customer)
+        self.db.commit()
+        self.db.refresh(new_customer)
+
+        return new_customer

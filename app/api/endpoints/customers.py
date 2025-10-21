@@ -6,25 +6,22 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.commons import get_db
+from app.domain.customer import CustomerDomain
 from app.models.customer import Customer, CustomerDTO
 from app.schemas.customer import Customer as CustomerSchema, CreateCustomer
 
-router = APIRouter(prefix='/customers', tags=['Customers'])
+router = APIRouter(tags=['Customers'])
 
 
-@router.post("/", response_model=CustomerSchema,
+@router.post("/customers", response_model=CustomerSchema,
              status_code=status.HTTP_201_CREATED)
 def create_customer(customer: CreateCustomer, db: Session = Depends(get_db)):
     """Create a new customer."""
-    db_customer = Customer(**customer.model_dump())
-    db.add(db_customer)
-    db.commit()
-    db.refresh(db_customer)
-
-    return db_customer
+    CustomerDomain(customer.model_dump(), db).validate_creation()
+    return CustomerDTO(db).insert(customer)
 
 
-@router.get("/", response_model=List[CustomerSchema])
+@router.get("/customers", response_model=List[CustomerSchema])
 def get_customers(skip: int = 0, limit: int = 100,
                   db: Session = Depends(get_db)):
     """Get all customers with pagination."""
@@ -32,7 +29,7 @@ def get_customers(skip: int = 0, limit: int = 100,
     return customers
 
 
-@router.get("/{customer_id}", response_model=CustomerSchema)
+@router.get("/customers/{customer_id}", response_model=CustomerSchema)
 def get_customer(customer_id: int, db: Session = Depends(get_db)):
     """Get a customer by ID."""
     customer = CustomerDTO(db).get_by_id(customer_id)
@@ -44,7 +41,7 @@ def get_customer(customer_id: int, db: Session = Depends(get_db)):
     return customer
 
 
-@router.put("/{customer_id}", response_model=CustomerSchema)
+@router.put("/customers/{customer_id}", response_model=CustomerSchema)
 def update_customer(
         customer_id: int,
         customer_update: CreateCustomer,
