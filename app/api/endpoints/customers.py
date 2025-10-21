@@ -17,7 +17,7 @@ router = APIRouter(tags=['Customers'])
              status_code=status.HTTP_201_CREATED)
 def create_customer(customer: CreateCustomer, db: Session = Depends(get_db)):
     """Create a new customer."""
-    CustomerDomain(customer.model_dump(), db).validate_creation()
+    CustomerDomain(customer.model_dump(), db).validate_before_creation()
     return CustomerDTO(db).insert(customer)
 
 

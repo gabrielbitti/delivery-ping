@@ -3,7 +3,7 @@
 from fastapi import status, HTTPException
 from sqlalchemy.orm import Session
 
-# from app.models.customer import CustomerDTO
+from app.models.customer import CustomerDTO
 
 
 class CustomerDomain:
@@ -11,23 +11,19 @@ class CustomerDomain:
         self.data = data
         self.db = db
 
-    def validate_creation(self):
-        self.__validate_whatsapp_format()
-
-        # todo: verify if user already exists by CPF, CNPJ, email
-        # user_exists = CustomerDTO(self.db).user_exists(self.data)
-
-        return True
-
-    def __validate_whatsapp_format(self):
-        if not self.data.get("has_whatsapp"):
-            return True
-
+    def validate_before_creation(self):
         cellphone = self.data.get("cellphone")
-        if len(cellphone) > 14 or len(cellphone) < 11:
+        if cellphone and (len(cellphone) > 14 or len(cellphone) < 11):
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Invalid cellphone format"
             )
 
-        return None
+        customer_exists = CustomerDTO(self.db).user_exists(self.data)
+        if customer_exists:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Customer already exists"
+            )
+
+        return True

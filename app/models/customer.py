@@ -1,10 +1,12 @@
 """Customer model implementation."""
 
-from sqlalchemy import String, Integer, Column, Boolean, Index
-from sqlalchemy.orm import relationship, validates
+from sqlalchemy import String, Integer, Column, Boolean, Index, text
 
 from .abstract import BaseModel
 from ..schemas.customer import CreateCustomer
+
+
+# from sqlalchemy.orm import relationship, validates
 
 
 class Customer(BaseModel):
@@ -72,3 +74,22 @@ class CustomerDTO:
         self.db.refresh(new_customer)
 
         return new_customer
+
+    def user_exists(self, data: dict):
+        """Check if a Customer exists by email, CPF or CNPJ."""
+        conditions = []
+        
+        if data.get("email"):
+            conditions.append(f"email = '{data.get('email')}'")
+        if data.get("cpf"):
+            conditions.append(f"cpf = '{data.get('cpf')}'")
+        if data.get("cnpj"):
+            conditions.append(f"cnpj = '{data.get('cnpj')}'")
+        
+        if not conditions:
+            return False
+            
+        where_clause = " OR ".join(conditions)
+        query = self.db.query(Customer).where(text(where_clause))
+        
+        return query.first()
