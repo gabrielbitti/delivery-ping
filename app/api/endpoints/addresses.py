@@ -24,6 +24,15 @@ def create_address(address: CreateAddress, db: Session = Depends(get_db)):
             detail="Customer not found"
         )
 
+    if len(address.zip_code) < 8 or len(address.zip_code) > 9:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            detail="Invalid Zip Code"
+        )
+
+    # todo: verify if this customer already has a primary address
+    # todo: adds this validation in domain/address
+
     db_address = Address(**address.model_dump())
     db.add(db_address)
     db.commit()
