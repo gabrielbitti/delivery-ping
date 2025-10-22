@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if action == 'create' %}Novo Cliente{% else %}Editar Cliente{% endif %} - DeliveryPing
+{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>{% if action == 'create' %}Novo Cliente{% else %}Editar Cliente{% endif %}</h1>
+    <a href="/web/customers" class="btn btn-secondary">← Voltar</a>
+</div>
+
+<div class="card">
+    <form id="customerForm">
+        <div class="form-group">
+            <label for="complete_name">Nome Completo *</label>
+            <input 
+                type="text" 
+                id="complete_name" 
+                name="complete_name" 
+                class="form-control"
+                value="{{ customer.complete_name if customer else '' }}"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="nickname">Apelido</label>
+            <input 
+                type="text" 
+                id="nickname" 
+                name="nickname" 
+                class="form-control"
+                value="{{ customer.nickname if customer else '' }}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="cellphone">Telefone *</label>
+            <input 
+                type="tel" 
+                id="cellphone" 
+                name="cellphone" 
+                class="form-control"
+                placeholder="(00) 00000-0000"
+                value="{{ customer.cellphone if customer else '' }}"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="cpf">CPF</label>
+            <input 
+                type="text" 
+                id="cpf" 
+                name="cpf" 
+                class="form-control"
+                placeholder="000.000.000-00"
+                value="{{ customer.cpf if customer else '' }}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="cnpj">CNPJ</label>
+            <input 
+                type="text" 
+                id="cnpj" 
+                name="cnpj" 
+                class="form-control"
+                placeholder="00.000.000/0000-00"
+                value="{{ customer.cnpj if customer else '' }}"
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                class="form-control"
+                value="{{ customer.email if customer else '' }}"
+            >
+        </div>
+
+        <div class="form-group checkbox-group">
+            <label>
+                <input 
+                    type="checkbox" 
+                    id="has_whatsapp" 
+                    name="has_whatsapp"
+                    {% if customer and customer.has_whatsapp %}checked{% endif %}
+                >
+                Possui WhatsApp
+            </label>
+        </div>
+
+        <div class="form-group checkbox-group">
+            <label>
+                <input 
+                    type="checkbox" 
+                    id="is_active" 
+                    name="is_active"
+                    {% if not customer or customer.is_active %}checked{% endif %}
+                >
+                Ativo
+            </label>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {% if action == 'create' %}Criar Cliente{% else %}Salvar Alterações{% endif %}
+            </button>
+            <a href="/web/customers" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const form = document.getElementById('customerForm');
+    const action = '{{ action }}';
+    const customerId = {% if customer %}'{{ customer.id }}'{% else %}null{% endif %};
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const data = {
+            complete_name: formData.get('complete_name'),
+            nickname: formData.get('nickname') || null,
+            cellphone: formData.get('cellphone'),
+            cpf: formData.get('cpf') || null,
+            cnpj: formData.get('cnpj') || null,
+            email: formData.get('email') || null,
+            has_whatsapp: formData.get('has_whatsapp') === 'on',
+            is_active: formData.get('is_active') === 'on'
+        };
+
+        try {
+            let response;
+            if (action === 'create') {
+                response = await fetch('/customers', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+            } else {
+                response = await fetch(`/customers/${customerId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+            }
+
+            if (response.ok) {
+                showToast('Cliente salvo com sucesso!', 'success');
+                setTimeout(() => {
+                    window.location.href = '/web/customers';
+                }, 1500);
+            } else {
+                const error = await response.json();
+                showToast(error.detail || 'Erro ao salvar cliente', 'error');
+            }
+        } catch (error) {
+            showToast('Erro ao comunicar com o servidor', 'error');
+        }
+    });
+
+    // Máscaras para os campos
+    const cellphoneInput = document.getElementById('cellphone');
+    cellphoneInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length <= 11) {
+            value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
+            value = value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
+        }
+        e.target.value = value;
+    });
+
+    const cpfInput = document.getElementById('cpf');
+    cpfInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        value = value.replace(/^(\d{3})(\d{3})(\d{3})(\d{2}).*/, '$1.$2.$3-$4');
+        e.target.value = value;
+    });
+
+    const cnpjInput = document.getElementById('cnpj');
+    cnpjInput.addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        value = value.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2}).*/, '$1.$2.$3/$4-$5');
+        e.target.value = value;
+    });
+</script>
+{% endblock %}

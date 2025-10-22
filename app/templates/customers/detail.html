@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+
+{% block title %}{{ customer.complete_name }} - DeliveryPing{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Detalhes do Cliente</h1>
+    <div>
+        <a href="/web/customers/{{ customer.id }}/edit" class="btn btn-warning">Editar</a>
+        <a href="/web/customers" class="btn btn-secondary">← Voltar</a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="detail-grid">
+        <div class="detail-item">
+            <label>ID</label>
+            <span>{{ customer.id }}</span>
+        </div>
+
+        <div class="detail-item">
+            <label>Nome Completo</label>
+            <span>{{ customer.complete_name }}</span>
+        </div>
+
+        <div class="detail-item">
+            <label>Apelido</label>
+            <span>{{ customer.nickname or '-' }}</span>
+        </div>
+
+        <div class="detail-item">
+            <label>Telefone</label>
+            <span>{{ customer.cellphone }}</span>
+        </div>
+
+        <div class="detail-item">
+            <label>CPF</label>
+            <span>{{ customer.cpf or '-' }}</span>
+        </div>
+
+        <div class="detail-item">
+            <label>CNPJ</label>
+            <span>{{ customer.cnpj or '-' }}</span>
+        </div>
+
+        <div class="detail-item">
+            <label>Email</label>
+            <span>{{ customer.email or '-' }}</span>
+        </div>
+
+        <div class="detail-item">
+            <label>WhatsApp</label>
+            <span>
+                {% if customer.has_whatsapp %}
+                    <span class="badge badge-success">Sim</span>
+                {% else %}
+                    <span class="badge badge-secondary">Não</span>
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="detail-item">
+            <label>Status</label>
+            <span>
+                {% if customer.is_active %}
+                    <span class="badge badge-success">Ativo</span>
+                {% else %}
+                    <span class="badge badge-danger">Inativo</span>
+                {% endif %}
+            </span>
+        </div>
+
+        <div class="detail-item">
+            <label>Criado em</label>
+            <span>{{ customer.created_at.strftime('%d/%m/%Y %H:%M') if customer.created_at else '-' }}</span>
+        </div>
+
+        <div class="detail-item">
+            <label>Atualizado em</label>
+            <span>{{ customer.updated_at.strftime('%d/%m/%Y %H:%M') if customer.updated_at else '-' }}</span>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Endereços</h2>
+    <div id="addresses-list">
+        <p class="text-muted">Carregando endereços...</p>
+    </div>
+    <button class="btn btn-primary" onclick="showAddressModal()">+ Adicionar Endereço</button>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const customerId = {{ customer.id }};
+    
+    async function loadAddresses() {
+        try {
+            const response = await fetch(`/addresses?customer_id=${customerId}`);
+            const addresses = await response.json();
+            
+            const container = document.getElementById('addresses-list');
+            
+            if (addresses.length === 0) {
+                container.innerHTML = '<p class="text-muted">Nenhum endereço cadastrado</p>';
+                return;
+            }
+            
+            let html = '<div class="addresses-grid">';
+            addresses.forEach(address => {
+                html += `
+                    <div class="address-card">
+                        <div class="address-header">
+                            ${address.is_primary ? '<span class="badge badge-primary">Principal</span>' : ''}
+                        </div>
+                        <p><strong>${address.complete_address}</strong></p>
+                        <p>${address.city} - ${address.state}, ${address.zip_code}</p>
+                        ${address.country ? `<p>${address.country}</p>` : ''}
+                        <div class="address-actions">
+                            <button class="btn btn-sm btn-warning" onclick="editAddress(${address.id})">Editar</button>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            
+            container.innerHTML = html;
+        } catch (error) {
+            document.getElementById('addresses-list').innerHTML = 
+                '<p class="text-danger">Erro ao carregar endereços</p>';
+        }
+    }
+    
+    function showAddressModal() {
+        // Aqui você pode implementar um modal ou redirecionar para uma página de cadastro
+        alert('Funcionalidade de adicionar endereço será implementada em breve!');
+    }
+    
+    function editAddress(addressId) {
+        alert(`Editar endereço ${addressId}`);
+    }
+    
+    // Carregar endereços ao abrir a página
+    loadAddresses();
+</script>
+{% endblock %}

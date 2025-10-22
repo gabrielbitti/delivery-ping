@@ -18,7 +18,7 @@ class Customer(BaseModel):
     cellphone = Column(String(20), nullable=False)
     has_whatsapp = Column(Boolean, default=False)
     cpf = Column(String(11), unique=True, index=True)
-    cnpj = Column(String(14), unique=True, index=True)
+    cnpj = Column(String(18), unique=True, index=True)
     email = Column(String(255), unique=True, index=True)
     is_active = Column(Boolean, default=True, nullable=False)
 
@@ -61,6 +61,10 @@ class Customer(BaseModel):
 class CustomerDTO:
     def __init__(self, db):
         self.db = db
+
+    def get_all(self) -> list[Customer]:
+        """Get all Customers."""
+        return self.db.query(Customer).all()
 
     def get_by_id(self, pk: int) -> Customer:
         """Get a Customer by id."""

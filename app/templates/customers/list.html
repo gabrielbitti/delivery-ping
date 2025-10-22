@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Clientes - DeliveryPing{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Clientes</h1>
+    <a href="/web/customers/new" class="btn btn-primary">+ Novo Cliente</a>
+</div>
+
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Apelido</th>
+                <th>Telefone</th>
+                <th>WhatsApp</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if customers %}
+                {% for customer in customers %}
+                <tr>
+                    <td>{{ customer.id }}</td>
+                    <td>{{ customer.complete_name }}</td>
+                    <td>{{ customer.nickname or '-' }}</td>
+                    <td>{{ customer.cellphone }}</td>
+                    <td>
+                        {% if customer.has_whatsapp %}
+                            <span class="badge badge-success">Sim</span>
+                        {% else %}
+                            <span class="badge badge-secondary">Não</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="/web/customers/{{ customer.id }}" class="btn btn-sm btn-info">Ver</a>
+                        <a href="/web/customers/{{ customer.id }}/edit" class="btn btn-sm btn-warning">Editar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">Nenhum cliente cadastrado</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
