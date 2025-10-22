@@ -2,19 +2,22 @@
 
 import uvicorn
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from app.api.endpoints.addresses import router as addresses_router
 from app.api.endpoints.customers import router as customers_router
 from app.api.endpoints.route_points import router as router_points_router
-from app.api.endpoints.routes import router as router_router
-
-prefix = '/api/v1'
+from app.api.endpoints.routes import router as routes_router
 
 app = FastAPI()
-app.include_router(addresses_router, prefix=prefix)
-app.include_router(customers_router, prefix=prefix)
-app.include_router(router_points_router, prefix=prefix)
-app.include_router(router_router, prefix=prefix)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+templates = Jinja2Templates(directory="templates")
+
+app.include_router(addresses_router)
+app.include_router(customers_router)
+app.include_router(router_points_router)
+app.include_router(routes_router)
 
 # todo: configure CORS
 
