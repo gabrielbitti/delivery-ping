@@ -1,46 +1,29 @@
-"""Route CRUD endpoints."""
+"""Route routes."""
 
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Request, Depends, HTTPException, status
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.commons import get_db
 from app.models.route import Route, RouteDTO
 from app.schemas.route import Route as RouteSchema, CreateRoute
 
-router = APIRouter(prefix='/routes', tags=['Routes'])
+router = APIRouter(tags=['Route Web Pages'])
+
+templates = Jinja2Templates(directory="templates")
 
 
-@router.post("/", response_model=RouteSchema,
+@router.post("/routes", response_model=RouteSchema,
              status_code=status.HTTP_201_CREATED)
 def create_route(route: CreateRoute, db: Session = Depends(get_db)):
     """Create a new route."""
-    db_route = Route(**route.model_dump())
-    db.add(db_route)
-    db.commit()
-    db.refresh(db_route)
-
-    return db_route
+    return RouteDTO(db).insert(route)
 
 
-@router.post("/routes/{id}/cities", response_model=RouteSchema,
-             status_code=status.HTTP_201_CREATED)
-def add_city_to_route(route: CreateRoute, db: Session = Depends(get_db)):
-    """Add a city to route."""
-    # todo: adds city to a route, but before, add a address, add a route point, setting this route_id
-    pass
-
-
-@router.get("/", response_model=List[RouteSchema])
-def get_routes(skip: int = 0, limit: int = 10,
-               db: Session = Depends(get_db)):
-    """Get all routes with pagination."""
-    routes = db.query(Route).offset(skip).limit(limit).all()
-    return routes
-
-
-@router.get("/{route_id}", response_model=RouteSchema)
+@router.get("/routes/{route_id}", response_model=RouteSchema)
 def get_route(route_id: int, db: Session = Depends(get_db)):
     """Get a route by ID."""
     route = RouteDTO(db).get_by_id(route_id)
@@ -52,7 +35,7 @@ def get_route(route_id: int, db: Session = Depends(get_db)):
     return route
 
 
-@router.patch("/{route_id}", response_model=RouteSchema)
+@router.patch("/routes/{route_id}", response_model=RouteSchema)
 def update_route(
         route_id: int,
         route_update: CreateRoute,
@@ -73,3 +56,44 @@ def update_route(
     db.refresh(route)
 
     return route
+
+
+@router.get("/web/routes", response_class=HTMLResponse)
+def routes_page(request: Request, db: Session = Depends(get_db)):
+    """Render the routes list page."""
+    routes = RouteDTO(db).get_all()
+    return templates.TemplateResponse(
+        "routes/list.html",
+        {"request": request, "routes": routes}
+    )
+
+
+@router.get("/web/routes/new", response_class=HTMLResponse)
+def new_route_page(request: Request):
+    """Render the new route form page."""
+    return templates.TemplateResponse(
+        "routes/form.html",
+        {"request": request, "route": None, "action": "create"}
+    )
+
+
+@router.get("/web/routes/{route_id}", response_class=HTMLResponse)
+def route_detail_page(request: Request, route_id: int,
+                      db: Session = Depends(get_db)):
+    """Render the route detail page."""
+    route = RouteDTO(db).get_by_id(route_id)
+    return templates.TemplateResponse(
+        "routes/detail.html",
+        {"request": request, "route": route}
+    )
+
+
+@router.get("/web/routes/{route_id}/edit", response_class=HTMLResponse)
+def edit_route_page(request: Request, route_id: int,
+                    db: Session = Depends(get_db)):
+    """Render the edit route form page."""
+    route = RouteDTO(db).get_by_id(route_id)
+    return templates.TemplateResponse(
+        "routes/form.html",
+        {"request": request, "route": route, "action": "edit"}
+    )

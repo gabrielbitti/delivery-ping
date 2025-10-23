@@ -10,6 +10,7 @@ from sqlalchemy import (
 from sqlalchemy.orm import relationship, validates
 
 from .abstract import BaseModel
+from ..schemas.route import CreateRoute
 
 
 class RouteStatus(enum.Enum):
@@ -43,16 +44,22 @@ class Route(BaseModel):
         Index('idx_route_active', 'is_active'),
     )
 
-    @validates('is_active')
-    def validate_is_active(self, key, value):
-        if not isinstance(value, bool):  # ex: '5527998393682':
-            raise ValueError("campo")
-        return value
-
-
 class RouteDTO:
     def __init__(self, db):
         self.db = db
+
+    def insert(self, route: CreateRoute) -> Route:
+        """Insert a Route."""
+        new_route = Route(**route.model_dump())
+        self.db.add(new_route)
+        self.db.commit()
+        self.db.refresh(new_route)
+
+        return new_route
+
+    def get_all(self) -> list[Route]:
+        """Get all Routes."""
+        return self.db.query(Route).all()
 
     def get_by_id(self, pk: int) -> Route:
         """Get a Route by id."""

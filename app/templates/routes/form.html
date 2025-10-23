@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if action == 'create' %}Nova Rota{% else %}Editar Rota{% endif %} - DeliveryPing
+{% endblock %}
+
+{% block content %}
+    <div class="page-header">
+        <h1>{% if action == 'create' %}Nova Rota{% else %}Editar Rota{% endif %}</h1>
+        <a href="/web/routes" class="btn btn-secondary">← Voltar</a>
+    </div>
+
+    <div class="card">
+        <form id="routeForm">
+            <div class="form-group">
+                <label for="name">Nome da Rota *</label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    class="form-control"
+                    placeholder="Ex: Rota Centro - Segunda-feira"
+                    value="{{ route.name if route else '' }}"
+                    required
+                >
+            </div>
+
+            <div class="form-group checkbox-group">
+                <label>
+                    <input
+                        type="checkbox"
+                        id="is_active"
+                        name="is_active"
+                        {% if not route or route.is_active %}checked{% endif %}
+                    >
+                    Ativa
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    {% if action == 'create' %}Criar Rota{% else %}Salvar Alterações{% endif %}
+                </button>
+                <a href="/web/routes" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+
+    {% if route %}
+        <div class="card">
+            <h2>Pontos da Rota</h2>
+            <p class="text-muted">Arraste os pontos para reorganizar a ordem da rota</p>
+
+            <div id="route-points-container">
+                <p class="text-muted">Carregando pontos...</p>
+            </div>
+
+            <button class="btn btn-primary" onclick="showAddPointModal()">+ Adicionar Ponto</button>
+        </div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const form = document.getElementById('routeForm');
+        const action = '{{ action }}';
+        const routeId = {% if route %}'{{ route.id }}'{% else %}null{% endif %};
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            const data = {
+                name: formData.get('name'),
+                is_active: formData.get('is_active') === 'on'
+            };
+
+            try {
+                let response;
+                if (action === 'create') {
+                    response = await fetch('/routes', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                } else {
+                    response = await fetch(`/routes/${routeId}`, {
+                        method: 'PATCH',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+                }
+
+                if (response.ok) {
+                    showToast('Rota salva com sucesso!', 'success');
+                    if (action === 'create') {
+                        const result = await response.json();
+                        setTimeout(() => {
+                            window.location.href = `/web/routes/${result.id}/edit`;
+                        }, 1500);
+                    }
+                } else {
+                    const error = await response.json();
+                    showToast(error.detail || 'Erro ao salvar rota', 'error');
+                }
+            } catch (error) {
+                showToast('Erro ao comunicar com o servidor', 'error');
+            }
+        });
+
+        // Carregar pontos da rota se estiver editando
+        if (routeId) {
+            loadRoutePoints();
+        }
+
+        async function loadRoutePoints() {
+            try {
+                const response = await fetch(`/route_points?route_id=${routeId}`);
+                const points = await response.json();
+
+                const container = document.getElementById('route-points-container');
+
+                if (points.length === 0) {
+                    container.innerHTML = '<p class="text-muted">Nenhum ponto adicionado a esta rota</p>';
+                    return;
+                }
+
+                // Ordenar por sequence_order
+                points.sort((a, b) => a.sequence_order - b.sequence_order);
+
+                let html = '<div class="route-points-list">';
+                points.forEach((point, index) => {
+                    html += `
+                        <div class="route-point-item" data-point-id="${point.id}">
+                            <div class="point-order">${index + 1}</div>
+                            <div class="point-details">
+                                <strong>${point.address.customer.complete_name}</strong>
+                                <p>${point.address.complete_address}</p>
+                                <small>${point.address.city} - ${point.address.state}</small>
+                                ${point.notes ? `<p class="point-notes">📝 ${point.notes}</p>` : ''}
+                            </div>
+                            <div class="point-actions">
+                                <button class="btn btn-sm btn-warning" onclick="editPoint(${point.id})">✏️</button>
+                                <button class="btn btn-sm btn-danger" onclick="removePoint(${point.id})">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+
+                container.innerHTML = html;
+
+                // TODO: Implementar drag-and-drop para reordenar
+            } catch (error) {
+                document.getElementById('route-points-container').innerHTML =
+                    '<p class="text-danger">Erro ao carregar pontos</p>';
+            }
+        }
+
+        function showAddPointModal() {
+            // TODO: Implementar modal para selecionar cliente e endereço
+            alert('Modal de adicionar ponto será implementado em breve!');
+        }
+
+        function editPoint(pointId) {
+            alert(`Editar ponto ${pointId}`);
+        }
+
+        async function removePoint(pointId) {
+            if (!confirm('Tem certeza que deseja remover este ponto da rota?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/route_points/${pointId}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showToast('Ponto removido com sucesso!', 'success');
+                    loadRoutePoints();
+                } else {
+                    showToast('Erro ao remover ponto', 'error');
+                }
+            } catch (error) {
+                showToast('Erro ao comunicar com o servidor', 'error');
+            }
+        }
+    </script>
+
+    <style>
+        .route-points-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .route-point-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background-color: white;
+            transition: all 0.2s;
+        }
+
+        .route-point-item:hover {
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .point-order {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .point-details {
+            flex: 1;
+        }
+
+        .point-details strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .point-details p {
+            margin: 0.25rem 0;
+            color: var(--secondary);
+            font-size: 0.875rem;
+        }
+
+        .point-notes {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background-color: #fff9e6;
+            border-radius: 4px;
+            color: #856404;
+        }
+
+        .point-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+    </style>
+{% endblock %}

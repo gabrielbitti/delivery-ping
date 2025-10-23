@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Rotas - DeliveryPing{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>Rotas</h1>
+    <a href="/web/routes/new" class="btn btn-primary">+ Nova Rota</a>
+</div>
+
+<div class="card">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Status</th>
+                <th>Pontos</th>
+                <th>Criada em</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if routes %}
+                {% for route in routes %}
+                <tr>
+                    <td>{{ route.id }}</td>
+                    <td>{{ route.name }}</td>
+                    <td>
+                        {% if route.is_active %}
+                            <span class="badge badge-success">Ativa</span>
+                        {% else %}
+                            <span class="badge badge-secondary">Inativa</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ route.points_count or 0 }}</td>
+                    <td>{{ route.created_at.strftime('%d/%m/%Y') if route.created_at else '-' }}</td>
+                    <td>
+                        <a href="/web/routes/{{ route.id }}" class="btn btn-sm btn-info">Ver</a>
+                        <a href="/web/routes/{{ route.id }}/edit" class="btn btn-sm btn-warning">Editar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <tr>
+                    <td colspan="6" class="text-center">Nenhuma rota cadastrada</td>
+                </tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
