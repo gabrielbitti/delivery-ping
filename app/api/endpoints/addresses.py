@@ -6,8 +6,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.commons import get_db
-from app.models.customer import CustomerDTO
 from app.models.address import Address, AddressDTO
+from app.models.customer import CustomerDTO
 from app.schemas.address import CreateAddress, AddressOut
 
 router = APIRouter(tags=['Addresses'])
@@ -16,21 +16,26 @@ router = APIRouter(tags=['Addresses'])
 @router.post("/addresses", response_model=AddressOut,
              status_code=status.HTTP_201_CREATED)
 def create_address(address: CreateAddress, db: Session = Depends(get_db)):
-    """Create a new address."""
+    """Create a new address for a customer."""
     customer = CustomerDTO(db).get_by_id(address.customer_id)
     if not customer:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Customer not found"
+            detail="Cliente não encontrado"
         )
 
     if len(address.zip_code) < 8 or len(address.zip_code) > 9:
         raise HTTPException(
             status_code=status.HTTP_412_PRECONDITION_FAILED,
-            detail="Invalid Zip Code"
+            detail="CEP inválido"
         )
 
-    # todo: verify if this customer already has a primary address
+    for customer_address in customer.addresses:
+        if customer_address.is_primary and address.is_primary:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Cliente já tem endereço principal"
+            )
     # todo: adds this validation in domain/address
 
     db_address = Address(**address.model_dump())
@@ -55,7 +60,7 @@ def get_address(address_id: int, db: Session = Depends(get_db)):
     if address is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Address not found"
+            detail="Endereço não encontrado"
         )
     return address
 
@@ -71,8 +76,28 @@ def update_address(
     if address is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Address not found"
+            detail="Endereço não encontrado"
         )
+
+    customer = CustomerDTO(db).get_by_id(address.customer_id)
+    if not customer:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Cliente não encontrado"
+        )
+
+    if len(address.zip_code) < 8 or len(address.zip_code) > 9:
+        raise HTTPException(
+            status_code=status.HTTP_412_PRECONDITION_FAILED,
+            detail="CEP inválido"
+        )
+
+    for customer_address in customer.addresses:
+        if customer_address.is_primary and customer_update.is_primary:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Cliente já tem endereço principal"
+            )
 
     for field, value in customer_update.model_dump().items():
         setattr(address, field, value)
