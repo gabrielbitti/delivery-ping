@@ -3,46 +3,46 @@
 {% block title %}{{ route.name }} - DeliveryPing{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h1>Detalhes da Rota</h1>
-    <div>
-        <a href="/web/routes/{{ route.id }}/edit" class="btn btn-warning">Editar</a>
-        <a href="/web/routes" class="btn btn-secondary">← Voltar</a>
-    </div>
-</div>
-
-<div class="card">
-    <div class="detail-grid">
-        <div class="detail-item">
-            <label>ID</label>
-            <span>{{ route.id }}</span>
-        </div>
-
-        <div class="detail-item">
-            <label>Nome</label>
-            <span>{{ route.name }}</span>
-        </div>
-
-        <div class="detail-item">
-            <label>Status</label>
-            <span>
-                {% if route.is_active %}
-                    <span class="badge badge-success">Ativo</span>
-                {% else %}
-                    <span class="badge badge-danger">Inativo</span>
-                {% endif %}
-            </span>
-        </div>
-
-        <div class="detail-item">
-            <label>Criado em</label>
-            <span>{{ route.created_at.strftime('%d/%m/%Y %H:%M') if route.created_at else '-' }}</span>
-        </div>
-
-        <div class="detail-item">
-            <label>Atualizado em</label>
-            <span>{{ route.updated_at.strftime('%d/%m/%Y %H:%M') if route.updated_at else '-' }}</span>
+    <div class="page-header">
+        <h1>Detalhes da Rota</h1>
+        <div>
+            <a href="/web/routes" class="btn btn-secondary">← Voltar</a>
+            <a href="/web/routes/{{ route.id }}/edit" class="btn btn-warning">Editar</a>
         </div>
     </div>
-</div>
+
+    <div class="card">
+        <div class="detail-grid">
+            <div class="detail-item">
+                <label>ID</label>
+                <span>{{ route.id }}</span>
+            </div>
+
+            <div class="detail-item">
+                <label>Nome</label>
+                <span>{{ route.name }}</span>
+            </div>
+
+            <div class="detail-item">
+                <label>Status</label>
+                <span>
+                    {% if route.is_active %}
+                        <span class="badge badge-success">Ativo</span>
+                    {% else %}
+                        <span class="badge badge-danger">Inativo</span>
+                    {% endif %}
+                </span>
+            </div>
+
+            <div class="detail-item">
+                <label>Criado em</label>
+                <span>{{ route.created_at.strftime('%d/%m/%Y %H:%M') if route.created_at else '-' }}</span>
+            </div>
+
+            <div class="detail-item">
+                <label>Atualizado em</label>
+                <span>{{ route.updated_at.strftime('%d/%m/%Y %H:%M') if route.updated_at else '-' }}</span>
+            </div>
+        </div>
+    </div>
 {% endblock %}

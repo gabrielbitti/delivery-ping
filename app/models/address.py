@@ -5,6 +5,7 @@ from sqlalchemy import (
     ForeignKey, DateTime, Index, CheckConstraint,
     text
 )
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from .abstract import BaseModel
@@ -29,7 +30,7 @@ class Address(BaseModel):
     is_primary = Column(Boolean, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    # customer = relationship("Customer", back_populates="addresses")
+    customer = relationship("Customer", back_populates="addresses")
     # route_points = relationship("RoutePoint", back_populates="address")
 
     __table_args__ = (

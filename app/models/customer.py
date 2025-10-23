@@ -1,12 +1,10 @@
 """Customer model implementation."""
 
 from sqlalchemy import String, Integer, Column, Boolean, Index, text
+from sqlalchemy.orm import relationship
 
 from .abstract import BaseModel
 from ..schemas.customer import CreateCustomer
-
-
-# from sqlalchemy.orm import relationship, validates
 
 
 class Customer(BaseModel):
@@ -22,12 +20,12 @@ class Customer(BaseModel):
     email = Column(String(255), unique=True, index=True)
     is_active = Column(Boolean, default=True, nullable=False)
 
-    # addresses = relationship(
-    #     "Address",
-    #     back_populates="customer",
-    #     cascade="all, delete-orphan",
-    #     lazy="selectin"
-    # )
+    addresses = relationship(
+        "Address",
+        back_populates="customer",
+        cascade="all, delete-orphan",
+        lazy="joined"
+    )
     # notifications = relationship(
     #     "Notification",
     #     back_populates="customer",
@@ -38,24 +36,6 @@ class Customer(BaseModel):
         Index('idx_customer_active_name', 'is_active', 'complete_name'),
         {'comment': 'Tabela de clientes do sistema'}
     )
-
-    # @validates('cellphone')
-    # def validate_cellphone(self, key, value):
-    #     if len(value) > 14:  # ex: '5527998393682':
-    #         raise ValueError("Formato deve ser: 55987654321")
-    #     return value
-    #
-    # @validates('cpf')
-    # def validate_cpf(self, key, value):
-    #     if len(value) != 11:
-    #         raise ValueError("Formato deve ser: 12345678901")
-    #     return value
-    #
-    # @validates('cnpj')
-    # def validate_cnpj(self, key, value):
-    #     if len(value) != 14:
-    #         raise ValueError("Formato deve ser: 01227601200139")
-    #     return value
 
 
 class CustomerDTO:
@@ -82,18 +62,18 @@ class CustomerDTO:
     def user_exists(self, data: dict):
         """Check if a Customer exists by email, CPF or CNPJ."""
         conditions = []
-        
+
         if data.get("email"):
             conditions.append(f"email = '{data.get('email')}'")
         if data.get("cpf"):
             conditions.append(f"cpf = '{data.get('cpf')}'")
         if data.get("cnpj"):
             conditions.append(f"cnpj = '{data.get('cnpj')}'")
-        
+
         if not conditions:
             return False
-            
+
         where_clause = " OR ".join(conditions)
         query = self.db.query(Customer).where(text(where_clause))
-        
+
         return query.first()

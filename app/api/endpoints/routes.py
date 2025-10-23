@@ -1,14 +1,12 @@
 """Route routes."""
 
-from typing import List
-
 from fastapi import APIRouter, Request, Depends, HTTPException, status
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.commons import get_db
-from app.models.route import Route, RouteDTO
+from app.models.route import RouteDTO
 from app.schemas.route import Route as RouteSchema, CreateRoute
 
 router = APIRouter(tags=['Route Web Pages'])
